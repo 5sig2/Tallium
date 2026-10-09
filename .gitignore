@@ -1,0 +1,16 @@
+.gradle/
+**/build/
+**/run/
+**/run-production/
+dist/
+.tools/
+verification/local/
+*.log
+.local/
+verification/
+versions/
+artwork/
+design.md
+.hallmark/
+**/__pycache__/
+*.pyc

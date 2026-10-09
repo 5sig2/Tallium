@@ -1,0 +1,5 @@
+allprojects {
+    group = 'dev.sig.tallium'
+    version = '1.0'
+    repositories { mavenCentral(); maven { url = 'https://maven.fabricmc.net/' }; maven { url = 'https://maven.terraformersmc.com/releases/' } }
+}

@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "modVersion": "1.0",
+  "releaseFile": "Tallium 1.0.jar",
+  "targets": [
+    {
+      "minecraft": "1.21",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.jar"
+    },
+    {
+      "minecraft": "1.21.1",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.1.jar"
+    },
+    {
+      "minecraft": "1.21.2",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.2.jar"
+    },
+    {
+      "minecraft": "1.21.3",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.3.jar"
+    },
+    {
+      "minecraft": "1.21.4",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.4.jar"
+    },
+    {
+      "minecraft": "1.21.5",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.5.jar"
+    },
+    {
+      "minecraft": "1.21.6",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.6.jar"
+    },
+    {
+      "minecraft": "1.21.7",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.7.jar"
+    },
+    {
+      "minecraft": "1.21.8",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.8.jar"
+    },
+    {
+      "minecraft": "1.21.9",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.9.jar"
+    },
+    {
+      "minecraft": "1.21.10",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.10.jar"
+    },
+    {
+      "minecraft": "1.21.11",
+      "java": 21,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "remap",
+      "artifact": "tallium-1.0+mc1.21.11.jar"
+    },
+    {
+      "minecraft": "26.1",
+      "java": 25,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "unobfuscated",
+      "artifact": "tallium-1.0+mc26.1.jar"
+    },
+    {
+      "minecraft": "26.1.1",
+      "java": 25,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "unobfuscated",
+      "artifact": "tallium-1.0+mc26.1.1.jar"
+    },
+    {
+      "minecraft": "26.1.2",
+      "java": 25,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "unobfuscated",
+      "artifact": "tallium-1.0+mc26.1.2.jar"
+    },
+    {
+      "minecraft": "26.2",
+      "java": 25,
+      "loader": "0.19.5",
+      "loaderMinimum": "0.19.5",
+      "loom": "1.16.3",
+      "gradle": "9.4.0",
+      "pipeline": "unobfuscated",
+      "artifact": "tallium-1.0+mc26.2.jar"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+pluginManagement {
+    repositories { maven { url = 'https://maven.fabricmc.net/' }; gradlePluginPortal(); mavenCentral() }
+    plugins {
+        id 'net.fabricmc.fabric-loom-remap' version '1.16.3'
+        id 'net.fabricmc.fabric-loom' version '1.16.3'
+    }
+}
+rootProject.name = 'tallium'
+def target = providers.gradleProperty('target').getOrElse('1.21.11')
+def matrix = new groovy.json.JsonSlurper().parse(file('versions.json'))
+if (!matrix.targets.any { it.minecraft == target }) throw new GradleException("Unsupported Tallium target: $target")
+include 'core', 'adapter', 'flat'
+project(':adapter').projectDir = file("versions/$target")

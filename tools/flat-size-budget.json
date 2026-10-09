@@ -1,0 +1,8 @@
+{
+  "baselineVersion": "0.1.5",
+  "measuredCompressedBytes": 994085,
+  "measuredUncompressedBytes": 2785809,
+  "maxCompressedBytes": 1114112,
+  "maxUncompressedBytes": 3080192,
+  "rationale": "Measured after factoring all existing sixteen versions into eight groups. Allow ten percent growth for maintenance of code and API tables, then round up to a 64 KiB boundary. This budget is a regression guard based on the actual flat release, not an advance design target."
+}

@@ -1,0 +1,4 @@
+The source includes the Gradle wrapper, licensed under Apache License 2.0.
+Its license is provided in gradle/LICENSE-Gradle.txt.
+
+The release JAR does not bundle external libraries.

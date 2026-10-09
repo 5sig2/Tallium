@@ -1,0 +1,173 @@
+name: Build Tallium
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        gson: ['2.10.1', '2.11.0', '2.13.2', '2.14.0']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: echo "TALLIUM_CORE_JDK=$JAVA_HOME" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - run: |
+          echo "org.gradle.java.installations.paths=$TALLIUM_CORE_JDK,$JAVA_HOME" >> gradle.properties
+          python tools/generate_adapters.py
+          ./gradlew :core:check -PtestGsonVersion=${{ matrix.gson }} --console=plain
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-gson-${{ matrix.gson }}
+          path: core/build/test-results/test/*.xml
+          if-no-files-found: ignore
+  native-inputs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        minecraft: ['1.21', '1.21.1', '1.21.2', '1.21.3', '1.21.4', '1.21.5', '1.21.6', '1.21.7', '1.21.8', '1.21.9', '1.21.10', '1.21.11', '26.1', '26.1.1', '26.1.2', '26.2']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: echo "TALLIUM_CORE_JDK=$JAVA_HOME" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Compile a native development input
+        run: |
+          echo "org.gradle.java.installations.paths=$TALLIUM_CORE_JDK,$JAVA_HOME" >> gradle.properties
+          chmod +x gradlew
+          python tools/generate_adapters.py
+          python tools/build_all.py ${{ matrix.minecraft }}
+          python - <<'PY'
+          import json, shutil
+          from pathlib import Path
+          m=json.loads(Path('versions.json').read_text()); v=m['modVersion']
+          out=Path('verification/local/ci-input'); out.mkdir(parents=True,exist_ok=True)
+          target=next(t for t in m['targets'] if t['minecraft']=='${{ matrix.minecraft }}')
+          shutil.copyfile(Path('verification/local/flat-inputs')/v/target['artifact'],out/target['artifact'])
+          shutil.copyfile(Path('verification/releases')/v/'build-verification.json',out/'build-verification.json')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tallium-native-inputs-mc${{ matrix.minecraft }}
+          path: verification/local/ci-input/*
+          retention-days: 1
+          if-no-files-found: error
+  release:
+    needs: [native-inputs, tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: echo "TALLIUM_CORE_JDK=$JAVA_HOME" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tallium-native-inputs-mc*
+          path: verification/local/ci-native-inputs
+      - name: Bind all sixteen actual native compilations
+        run: |
+          python - <<'PY'
+          import hashlib, json, shutil, sys
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          from production_sources import source_hashes
+          m=json.loads(Path('versions.json').read_text()); v=m['modVersion']; records=[]
+          out=Path('verification/local/flat-inputs')/v; out.mkdir(parents=True,exist_ok=True)
+          for proof in Path('verification/local/ci-native-inputs').rglob('build-verification.json'):
+              p=json.loads(proof.read_text()); assert p['sourceHashes']==source_hashes()
+              assert len(p['versions'])==1
+              record=p['versions'][0]; target=next(t for t in m['targets'] if t['minecraft']==record['game'])
+              source=proof.parent/record['artifact']; digest=hashlib.sha256(source.read_bytes()).hexdigest()
+              assert digest==record['sha256']; shutil.copyfile(source,out/record['artifact'])
+              records.append(record)
+          assert len(records)==16 and len({r['game'] for r in records})==16
+          release=Path('verification/releases')/v; release.mkdir(parents=True,exist_ok=True)
+          (release/'build-verification.json').write_text(json.dumps(dict(versions=records,sourceHashes=source_hashes()),indent=2)+'\n')
+          PY
+      - name: Compile the independent bootstrap and package shared code once
+        run: |
+          echo "org.gradle.java.installations.paths=$TALLIUM_CORE_JDK,$JAVA_HOME" >> gradle.properties
+          chmod +x gradlew
+          python tools/generate_adapters.py
+          ./gradlew :flat:classes --console=plain
+          python tools/package_universal.py
+          python tools/check_release_budget.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tallium
+          path: dist/tallium-*/*.jar
+          if-no-files-found: error
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: Tallium
+          path: release
+      - name: Publish the tagged release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, zipfile
+          m=json.loads(pathlib.Path('versions.json').read_text())
+          assert os.environ['TAG']=='v'+m['modVersion']
+          artifact=pathlib.Path('release')/m['releaseFile']
+          candidates=list(pathlib.Path('release').rglob(m['releaseFile']))
+          assert len(candidates)==1
+          if candidates[0]!=artifact:
+              artifact.write_bytes(candidates[0].read_bytes())
+          with zipfile.ZipFile(artifact) as jar:
+              assert json.loads(jar.read('fabric.mod.json'))['version']==m['modVersion']
+          notes=pathlib.Path('CHANGELOG.md').read_text().split('## '+m['modVersion']+'\n',1)[1].split('\n## ',1)[0].strip()
+          pathlib.Path('release-notes.md').write_text(notes+'\n')
+          PY
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release/*.jar --clobber
+          else
+            gh release create "$TAG" release/*.jar --verify-tag --title "Tallium ${TAG#v}" --notes-file release-notes.md
+          fi

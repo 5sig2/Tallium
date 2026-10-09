@@ -1,0 +1,41 @@
+import groovy.json.JsonSlurper
+evaluationDependsOn(':core')
+def target = new JsonSlurper().parse(rootProject.file('versions.json')).targets.find { it.minecraft == project.projectDir.name }
+def modMenuMatrix = new JsonSlurper().parse(rootProject.file('tools/modmenu-versions.json'))
+def modMenuGame = modMenuMatrix.containsKey(target.minecraft) ? target.minecraft : (target.minecraft.startsWith('26.') ? '26.1' : '1.21.11')
+def modMenu = modMenuMatrix[modMenuGame]
+dependencies {
+    minecraft "com.mojang:minecraft:${target.minecraft}"
+    if (target.pipeline == 'remap') mappings loom.officialMojangMappings()
+    if (target.pipeline == 'remap') modImplementation "net.fabricmc:fabric-loader:${target.loader}"
+    else implementation "net.fabricmc:fabric-loader:${target.loader}"
+    implementation project(':core')
+
+    if (target.pipeline == 'remap') modCompileOnly "com.terraformersmc:modmenu:${modMenu.version}"
+    else compileOnly "com.terraformersmc:modmenu:${modMenu.version}"
+}
+java { toolchain { languageVersion = JavaLanguageVersion.of(target.java as int) } }
+tasks.withType(JavaCompile).configureEach { options.release = target.java as int; options.encoding = 'UTF-8' }
+sourceSets.main.resources.srcDir rootProject.file('resources')
+base { archivesName = "tallium" }
+version = "${rootProject.version}+mc${target.minecraft}"
+tasks.processResources {
+    inputs.property('target', target.minecraft)
+    filesMatching('fabric.mod.json') {
+        expand(modVersion:rootProject.version, minecraft:target.minecraft, java:target.java, loader:target.loaderMinimum)
+    }
+}
+tasks.jar { from(project(':core').sourceSets.main.output); from(rootProject.file('THIRD_PARTY_NOTICES.txt')); from(rootProject.file('LICENSE')) }
+tasks.register('distribute', Copy) {
+    dependsOn target.pipeline == 'remap' ? tasks.remapJar : tasks.jar
+    from(target.pipeline == 'remap' ? tasks.remapJar.archiveFile : tasks.jar.archiveFile)
+
+    into rootProject.file("verification/local/flat-inputs/${rootProject.version}")
+}
+def productionTaskType = project.plugins.findPlugin(target.pipeline == 'remap' ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom').class.classLoader.loadClass('net.fabricmc.loom.task.prod.ClientProductionRunTask')
+tasks.register('productionClient', productionTaskType) {
+    mods.from(rootProject.file("dist/tallium-${rootProject.version}/" + new JsonSlurper().parse(rootProject.file('versions.json')).releaseFile))
+    runDir = layout.projectDirectory.dir('run-production')
+    useXVFB = false
+    programArgs.addAll('--username', 'TalliumVerification', '--accessToken', '0')
+}

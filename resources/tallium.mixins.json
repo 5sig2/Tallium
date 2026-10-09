@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "package": "dev.sig.tallium.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "OptionsMixin",
+    "OptionsAccessor",
+    "ClientMixin",
+    "PacketMixin",
+    "GuiMixin",
+    "LocalPlayerMixin",
+    "KeyMappingAccessor",
+    "LanguageMixin",
+    "NameTagMixin",
+    "TextDisplayAccessor",
+    "NameTagCollectorMixin",
+    "TabMixin",
+    "ReloadMixin",
+    "ActionMixin",
+    "DropMixin",
+    "ScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

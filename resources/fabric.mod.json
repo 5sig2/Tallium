@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "tallium",
+  "version": "${modVersion}+mc${minecraft}",
+  "name": "Tallium",
+  "contact": {
+    "homepage": "https://github.com/5sig2/Tallium",
+    "sources": "https://github.com/5sig2/Tallium",
+    "issues": "https://github.com/5sig2/Tallium/issues"
+  },
+  "description": "Item counters for your HUD and player nametags.",
+  "authors": [
+    "5Sig"
+  ],
+  "environment": "client",
+  "icon": "assets/tallium/icon.png",
+  "entrypoints": {
+    "client": [
+      "dev.sig.tallium.adapter.TalliumClient"
+    ],
+    "modmenu": [
+      "dev.sig.tallium.adapter.TalliumModMenu"
+    ]
+  },
+  "mixins": [
+    "tallium.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "minecraft": "=${minecraft}",
+    "java": ">=${java}"
+  },
+  "suggests": {
+    "modmenu": "*"
+  },
+  "license": "MIT"
+}
